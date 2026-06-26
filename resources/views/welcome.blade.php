@@ -32,7 +32,7 @@
         @if (Route::has('login'))
         <nav class="bg-white/95 backdrop-blur-sm px-6 py-4 flex justify-between items-center w-full shadow-sm border-b border-gray-100">
             <div class="flex items-center">
-                <a href="/" class="text-3xl font-extrabold tracking-tight text-[#4B0082] md:text-4xl">FixFlow</a>
+                <a href="/" class="text-3xl font-extrabold tracking-tight text-[#4B0082] md:text-4xl">FixBound</a>
             </div>
 
 
@@ -78,7 +78,7 @@
 
     {{-- 1. SECCIÓN DE LAS IMÁGENES (HERO VIBRANTE) --}}
     <div class="relative w-full bg-gradient-to-br from-[#2D004E] via-[#4B0082] to-[#1A0033] flex flex-col overflow-hidden rounded-b-[45px] sm:rounded-b-[75px] lg:rounded-b-[115px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20 pb-28 lg:pb-36">
-        
+
         <div class="absolute inset-0 bg-circuit opacity-40 pointer-events-none"></div>
 
         <div class="absolute top-[-5%] left-[-10%] w-[500px] h-[500px] bg-[#9D4EDD]/20 rounded-full blur-[120px] pointer-events-none"></div>
@@ -99,7 +99,7 @@
                     </h1>
 
                     <p class="max-w-2xl text-left text-base leading-relaxed text-white/95 sm:text-lg lg:text-left lg:text-2xl">
-                        FixFlow es el sistema integral diseñado para agilizar tus procesos técnicos. Registra equipos, da seguimiento en tiempo real a los estados de cada reparación y mantén el control total de tu flujo de trabajo con profesionalismo.
+                        FixBound es el sistema integral diseñado para agilizar tus procesos técnicos. Registra equipos, da seguimiento en tiempo real a los estados de cada reparación y mantén el control total de tu flujo de trabajo con profesionalismo.
                     </p>
                 </div>
 
@@ -132,7 +132,7 @@
 
             <div class="text-center max-w-3xl mx-auto mb-20">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-[#0D0D11] tracking-tight uppercase">
-                    ¿Por qué elegir <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4B0082] to-[#7B2CBF]">FixFlow</span>?
+                    ¿Por qué elegir <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4B0082] to-[#7B2CBF]">FixBound</span>?
                 </h2>
                 <div class="w-16 h-1 bg-gradient-to-r from-[#7B2CBF] to-[#C77DFF] mx-auto mt-4 rounded-full"></div>
             </div>
@@ -235,7 +235,7 @@
 
             <div class="relative group">
                 <div class="absolute inset-0 bg-gradient-to-r from-[#7B2CBF] to-[#C77DFF] rounded-xl blur-md opacity-75 group-hover:opacity-100 transition duration-300 group-hover:blur-lg"></div>
-                <a href="https://wa.me/tu-numero-aqui" target="_blank" class="relative inline-flex items-center gap-3 px-8 py-4 bg-[#0D0D11] hover:bg-transparent border border-white/10 text-white font-bold text-base rounded-xl transition-all duration-300 transform group-hover:scale-[1.02] tracking-wide uppercase">
+                <a href="#contact" class="relative inline-flex items-center gap-3 px-8 py-4 bg-[#0D0D11] hover:bg-transparent border border-white/10 text-white font-bold text-base rounded-xl transition-all duration-300 transform group-hover:scale-[1.02] tracking-wide uppercase">
                     <svg class="w-5 h-5 text-[#E0AAFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.222 3.419.169l2.242 1.616a.75.75 0 001.208-.588V16.5h.062a48.756 48.756 0 006.988-.564c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path>
                     </svg>
@@ -249,45 +249,46 @@
 
     {{-- 4. SECCIÓN DE PRECIOS CONTINUA --}}
     <section id="precios" class="relative w-full bg-gradient-to-b from-[#110022] to-[#0A0018] pb-24 px-4 lg:px-12 overflow-hidden z-10">
-        
+
         <div class="absolute inset-0 bg-circuit opacity-35 pointer-events-none"></div>
-        
+
         <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#4B0082]/15 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="relative max-w-6xl mx-auto w-full z-10">
-            
+
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase">
                     Planes hechos a tu <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#E0AAFF] to-[#C77DFF]">medida</span>
                 </h2>
                 <div class="w-16 h-1 bg-gradient-to-r from-[#7B2CBF] to-[#C77DFF] mx-auto mt-4 rounded-full"></div>
-                <p class="text-white/60 mt-4 font-light text-base max-w-xl mx-auto">
+                {{--<p class="text-white/60 mt-4 font-light text-base max-w-xl mx-auto">
                     Muy pronto podrás elegir el plan que mejor se adapte al volumen de reparaciones y al tamaño de tu equipo técnico.
-                </p>
+                </p>--}}
             </div>
 
             <div class="relative">
-                
+
+                {{--
                 <div class="absolute inset-0 bg-white/[0.02] backdrop-blur-[5px] z-30 flex flex-col items-center justify-center rounded-3xl p-6">
                     <div class="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#7B2CBF] to-[#9D4EDD] text-white font-bold text-lg md:text-xl uppercase tracking-widest shadow-[0_0_30px_rgba(123,44,191,0.5)] animate-bounce">
-                        🚀 Próximamente
+                        Próximamente
                     </div>
                     <p class="text-white/90 text-center mt-4 max-w-sm text-sm md:text-base font-medium drop-shadow-md">
                         Estamos ultimando los detalles de nuestras pasarelas de pago automatizadas.
                     </p>
                 </div>
+                ---}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 opacity-25 select-none pointer-events-none">
-                    
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide">Esencial</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide">Básico</h3>
                             <p class="text-white/50 text-sm mb-6">Para talleres independientes que inician.</p>
-                            <div class="text-3xl font-extrabold text-white mb-6">$?? <span class="text-sm font-normal text-white/50">/ mes</span></div>
+                            <div class="text-3xl font-extrabold text-white mb-6"> 390$ <span class="text-sm font-normal text-white/50">MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2">✔ Hasta 100 órdenes al mes</li>
+                                <li class="flex items-center gap-2">✔ Máximo 2 técnicos</li>
+                                <li class="flex items-center gap-2 text-white/40">❌ Sin clientes mayoristas</li>
                                 <li class="flex items-center gap-2">✔ Soporte estándar</li>
-                                <li class="flex items-center gap-2">✔ Registro básico de equipos</li>
                             </ul>
                         </div>
                     </div>
@@ -295,13 +296,12 @@
                     <div class="bg-white/5 border-2 border-[#7B2CBF]/40 rounded-2xl p-8 flex flex-col justify-between relative">
                         <div class="absolute top-0 right-6 transform -translate-y-1/2 bg-[#7B2CBF] text-white text-xs font-bold uppercase px-3 py-1 rounded-full">Popular</div>
                         <div>
-                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide text-[#E0AAFF]">Pro Taller</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide text-[#E0AAFF]">Pro</h3>
                             <p class="text-white/50 text-sm mb-6">El balance perfecto para equipos en crecimiento.</p>
-                            <div class="text-3xl font-extrabold text-white mb-6">$?? <span class="text-sm font-normal text-white/50">/ mes</span></div>
+                            <div class="text-3xl font-extrabold text-white mb-6">790$<span class="text-sm font-normal text-white/50"> MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2">✔ Órdenes ilimitadas</li>
-                                <li class="flex items-center gap-2">✔ 3 Técnicos simultáneos</li>
-                                <li class="flex items-center gap-2">✔ Historial clínico del equipo</li>
+                                <li class="flex items-center gap-2">✔ Máximo 4 técnicos</li>
+                                <li class="flex items-center gap-2 text-white/40">❌ Sin clientes mayoristas</li>
                                 <li class="flex items-center gap-2">✔ Soporte prioritario</li>
                             </ul>
                         </div>
@@ -309,14 +309,13 @@
 
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide">Multi Sucursal</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-wide">Taller Plus</h3>
                             <p class="text-white/50 text-sm mb-6">Para redes de talleres y grandes laboratorios.</p>
-                            <div class="text-3xl font-extrabold text-white mb-6">$?? <span class="text-sm font-normal text-white/50">/ mes</span></div>
+                            <div class="text-3xl font-extrabold text-white mb-6">1,300$<span class="text-sm font-normal text-white/50"> MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2">✔ Todo lo del plan Pro</li>
-                                <li class="flex items-center gap-2">✔ Técnicos ilimitados</li>
+                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold">✔ Hasta 15 técnicos</li>
+                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold">✔ Incluye Clientes Mayoristas</li>
                                 <li class="flex items-center gap-2">✔ Panel de analíticas avanzado</li>
-                                <li class="flex items-center gap-2">✔ API de integración libre</li>
                             </ul>
                         </div>
                     </div>
@@ -329,11 +328,41 @@
 
 
     {{-- FOOTER --}}
-    <footer class="relative z-30 w-full px-6 py-8 text-center border-t border-white/10 bg-[#0D0D11]">
-        <p class="text-sm text-white/60">
+    <footer id="contact" class="relative z-30 w-full px-6 py-8 text-center border-t border-white/10 bg-[#0D0D11]">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+        
+        <span class="text-xs font-bold uppercase tracking-widest text-[#E0AAFF] bg-[#7B2CBF]/20 px-3 py-1 rounded-full">
+            ¿Tienes dudas o necesitas un plan a la medida?
+        </span>
+        
+        <h2 class="text-3xl font-extrabold text-white mt-4 mb-4">
+            Estamos listos para impulsar tu taller
+        </h2>
+        
+        <p class="text-white/60 text-base max-w-xl mx-auto mb-8">
+            Si necesitas soporte técnico, quieres cambiar de plan, o eres una empresa con necesidades especiales, ponte en contacto directo con nuestro equipo comercial.
+        </p>
+
+        <div class="inline-block group">
+            <a href="mailto:contacto@tuempresa.com" 
+               class="flex items-center gap-3 bg-white/5 hover:bg-[#7B2CBF]/30 border border-white/10 hover:border-[#7B2CBF] text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-[#7B2CBF]/20 backdrop-blur-sm">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-[#E0AAFF] group-hover:scale-110 transition-transform">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.92V6.75" />
+                </svg>
+
+                <span class="text-lg">fixbound@gmail.com</span>
+            </a>
+        </div>
+
+        <p class="text-white/30 text-xs mt-16">
             &copy; {{ date('Y') }}. Todos los derechos reservados.
         </p>
+        
+    </div>
+
     </footer>
 
 </body>
+
 </html>
