@@ -286,9 +286,9 @@
                             <p class="text-white/50 text-sm mb-6">Para talleres independientes que inician.</p>
                             <div class="text-3xl font-extrabold text-white mb-6"> 390$ <span class="text-sm font-normal text-white/50">MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2">✔ Máximo 2 técnicos</li>
-                                <li class="flex items-center gap-2 text-white/40">❌ Sin clientes mayoristas</li>
-                                <li class="flex items-center gap-2">✔ Soporte estándar</li>
+                                <li class="flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Máximo 2 técnicos</li>
+                                <li class="flex items-center gap-2 text-white/40"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#x"/></svg> Sin clientes mayoristas</li>
+                                <li class="flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Soporte estándar</li>
                             </ul>
                         </div>
                     </div>
@@ -300,9 +300,9 @@
                             <p class="text-white/50 text-sm mb-6">El balance perfecto para equipos en crecimiento.</p>
                             <div class="text-3xl font-extrabold text-white mb-6">790$<span class="text-sm font-normal text-white/50"> MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2">✔ Máximo 4 técnicos</li>
-                                <li class="flex items-center gap-2 text-white/40">❌ Sin clientes mayoristas</li>
-                                <li class="flex items-center gap-2">✔ Soporte prioritario</li>
+                                <li class="flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Máximo 4 técnicos</li>
+                                <li class="flex items-center gap-2 text-white/40"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#x"/></svg> Sin clientes mayoristas</li>
+                                <li class="flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Soporte prioritario</li>
                             </ul>
                         </div>
                     </div>
@@ -313,9 +313,9 @@
                             <p class="text-white/50 text-sm mb-6">Para redes de talleres y grandes laboratorios.</p>
                             <div class="text-3xl font-extrabold text-white mb-6">1,300$<span class="text-sm font-normal text-white/50"> MXN / mes</span></div>
                             <ul class="space-y-3 text-sm text-white/70">
-                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold">✔ Hasta 15 técnicos</li>
-                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold">✔ Incluye Clientes Mayoristas</li>
-                                <li class="flex items-center gap-2">✔ Panel de analíticas avanzado</li>
+                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Hasta 15 técnicos</li>
+                                <li class="flex items-center gap-2 text-[#E0AAFF] font-semibold"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Incluye Clientes Mayoristas</li>
+                                <li class="flex items-center gap-2"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg> Panel de analíticas avanzado</li>
                             </ul>
                         </div>
                     </div>

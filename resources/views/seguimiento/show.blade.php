@@ -270,9 +270,9 @@
                 <div class="rounded-xl bg-gray-50 p-4">
                     <p class="flex items-start gap-2 text-sm text-gray-600">
                         @if($reparacion->estado === 'Entregado')
-                        <span class="text-green-600">✅</span> Esta orden fue entregada. El chat ya no está disponible.
+                        <svg class="w-5 h-5 inline text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check-circle"/></svg> Esta orden fue entregada. El chat ya no está disponible.
                         @else
-                        <span class="text-red-600">❌</span> Esta orden fue cancelada. El chat ya no está disponible.
+                        <svg class="w-5 h-5 inline text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#x-circle"/></svg> Esta orden fue cancelada. El chat ya no está disponible.
                         @endif
                     </p>
                 </div>
@@ -337,7 +337,7 @@
 
             // Badge en el título si la pestaña no está enfocada
             if (!document.hasFocus()) {
-                document.title = '🔔 Nuevo mensaje — FixFlow';
+                document.title = '* Nuevo mensaje — FixFlow';
             }
         }
 
