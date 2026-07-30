@@ -250,11 +250,11 @@
                 if (nivel) {
                     descNivel.innerHTML = `
                         <div class="flex items-start gap-2">
-                            <span class="text-[#7C3AED]">📋</span>
+                            <svg class="w-5 h-5 text-[#7C3AED] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#clipboard"/></svg>
                             <div>
                                 <strong class="font-medium text-gray-700">${nivel.nombre}</strong>
                                 <p class="text-gray-500 text-xs mt-0.5">${nivel.descripcion || 'Sin descripción adicional'}</p>
-                                <span class="inline-block mt-1 text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] px-2 py-0.5 rounded-full">⏱️ Tiempo estimado: ${nivel.horas_sla} horas</span>
+                                <span class="inline-flex items-center gap-1 mt-1 text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] px-2 py-0.5 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#stopwatch"/></svg> Tiempo estimado: ${nivel.horas_sla} horas</span>
                             </div>
                         </div>
                     `;

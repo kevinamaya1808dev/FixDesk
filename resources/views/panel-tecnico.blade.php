@@ -49,7 +49,7 @@
                 <form method="POST" action="{{ route('notificaciones.leida', $notif->id) }}" class="inline">
                     @csrf
                     <button type="submit" class="bg-gray-100 hover:bg-emerald-100 text-gray-600 hover:text-emerald-700 px-3 py-1 rounded-lg text-sm transition-colors">
-                        ✓
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#check"/></svg>
                     </button>
                 </form>
             </div>
@@ -155,7 +155,8 @@
                         </span>
                         @if($orden->estaRetrasada())
                         <span class="inline-flex items-center gap-1 ml-2 bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                            ⚠ Retrasada
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#warning"/></svg>
+                            Retrasada
                         </span>
                         @endif
                     </td>
@@ -169,7 +170,7 @@
                 <tr>
                     <td colspan="8" class="px-6 py-12 text-center text-gray-400">
                         <div class="flex flex-col items-center gap-2">
-                            <span class="text-4xl">📭</span>
+                            <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#mailbox"/></svg>
                             <p>No hay órdenes activas</p>
                         </div>
                     </td>
