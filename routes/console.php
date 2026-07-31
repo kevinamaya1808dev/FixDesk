@@ -140,13 +140,16 @@ Artisan::command(
     }
 )->purpose('Suspende el acceso de un taller.');
 
-function buscarTallerPorIdOCodigo(string $valor): Taller
-{
-    $query = Taller::with('plan');
+// Función envuelta para evitar el error "Cannot redeclare function"
+if (!function_exists('buscarTallerPorIdOCodigo')) {
+    function buscarTallerPorIdOCodigo(string $valor): Taller
+    {
+        $query = Taller::with('plan');
 
-    if (ctype_digit($valor)) {
-        return $query->where('id', (int) $valor)->firstOrFail();
+        if (ctype_digit($valor)) {
+            return $query->where('id', (int) $valor)->firstOrFail();
+        }
+
+        return $query->where('codigo_publico', Taller::normalizarCodigoPublico($valor))->firstOrFail();
     }
-
-    return $query->where('codigo_publico', Taller::normalizarCodigoPublico($valor))->firstOrFail();
 }
