@@ -1,59 +1,84 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛠️ FixBound - Sistema de Control y Seguimiento de Reparaciones
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**FixBound** es una plataforma **SaaS Multi-Tenant** diseñada para optimizar la gestión operativa de talleres de reparación técnica (dispositivos electrónicos, computadoras, smartphones, etc.). Permite registrar equipos, dar seguimiento en tiempo real con tiempos de resolución (SLA), gestionar clientes y técnicos, y ofrecer a los usuarios finales un portal público de rastreo transparente.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Características Principales
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 🏢 **Multi-Tenancy (SaaS):** Cada taller opera con sus datos aislados (`taller_id`) y su propio código público de identificación.
+- 🔎 **Rastreo Público de Órdenes:** Los clientes pueden consultar el estado de su equipo introduciendo su **Folio** en `/rastrear` o mediante un token único directo, sin necesidad de crear una cuenta.
+- ⏱️ **Niveles de Servicio (SLA) y Retardos:** Clasificación de reparaciones en 5 niveles con tiempos máximos de entrega. Monitoreo automático de retardos y notificaciones al administrador.
+- 💬 **Chat Integrado Técnico-Cliente:** Canal de comunicación directo dentro de la orden para aclaraciones y actualizaciones.
+- 👥 **Gestión de Roles (Admin y Técnico):** El administrador administra el equipo técnico, asigna órdenes y supervisa el centro de mando.
+- 💼 **Planes y Suscripciones:** Soporte para planes (Básico, Pro, Taller Plus) con límites de técnicos y habilitación de clientes mayoristas.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🚀 Stack Tecnológico
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Capa | Tecnología |
+|---|---|
+| **Backend** | PHP `^8.2`, Laravel `^12.0` |
+| **Frontend** | Blade, Tailwind CSS `^3.1`, Alpine.js `^3.4`, Vite `^7.0` |
+| **Base de Datos** | MySQL 8+ / MariaDB |
+| **Autenticación** | Laravel Breeze |
+| **Colas y Tareas** | Laravel Queues & Scheduler |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 💻 Instalación Local
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/GarbageBoy8/Seguimiento-de-Reparaciones.git
+   cd Seguimiento-de-Reparaciones
+   ```
 
-### Premium Partners
+2. **Instalar dependencias:**
+   ```bash
+   composer install
+   npm install
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+3. **Configurar el entorno:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## Contributing
+4. **Ejecutar migraciones y datos de prueba:**
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Iniciar el servidor de desarrollo:**
+   ```bash
+   composer run dev
+   ```
 
-## Code of Conduct
+### 🔑 Credenciales Demo (Sembradas)
+- **Admin:** `admin@fixbound.test` | **Contraseña:** `password`
+- **Técnico:** `tecnico@fixbound.test` | **Contraseña:** `password`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🐳 Despliegue en Producción (Docker / VPS / Coolify)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+FixBound incluye soporte para Docker mediante `Dockerfile` multi-stage y `docker-compose.prod.yml` (App, Worker, Scheduler y MySQL). Es totalmente compatible con plataformas de despliegue como **Coolify** o servidores VPS en DigitalOcean.
 
-## License
+> 📖 Para consultar la guía detallada de despliegue, configuración en Coolify y variables de entorno en producción, revisa el archivo [technical_transfer.md](technical_transfer.md).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## ⚙️ Comandos CLI Administrativos
+
+El sistema incluye comandos Artisan personalizados para administrar talleres, cambiar planes de suscripción y gestionar accesos directamente desde la terminal del servidor o consola.
+
+> 📖 Para consultar la lista completa de comandos CLI disponibles y sus parámetros, revisa la sección correspondiente en [technical_transfer.md](technical_transfer.md).
+
+---
+
+## 📄 Licencia
+
+Este proyecto es de uso privado e interno.
