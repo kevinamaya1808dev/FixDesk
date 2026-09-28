@@ -5,34 +5,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FixBound — @yield('titulo-pestana')</title>
+
+    <script>
+        // Aplicar estado colapsado antes del renderizado DOM para eliminar parpadeos y desplazamientos
+        if (localStorage.getItem('fixbound.sidebarCollapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
+    </script>
+
     <style>
         [x-cloak] {
             display: none !important;
+        }
+
+        /* Aplica dimensiones de forma síncrona antes de que Alpine.js hidrate */
+        @media (min-width: 768px) {
+            html.sidebar-collapsed #sidebar {
+                width: 5rem !important; /* md:w-20 */
+            }
+            html.sidebar-collapsed #contenedor-derecho {
+                margin-left: 5rem !important; /* md:ml-20 */
+            }
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="overflow-x-hidden bg-gradient-to-br from-slate-50 to-gray-100 antialiased">
+<body class="overflow-x-clip bg-gradient-to-br from-slate-50 to-gray-100 antialiased">
 
     <div id="contenedor-principal"
         x-data="{
             mobileMenuOpen: false,
             sidebarCollapsed: localStorage.getItem('fixbound.sidebarCollapsed') === 'true',
             init() {
-                this.$watch('sidebarCollapsed', value => localStorage.setItem('fixbound.sidebarCollapsed', value));
+                document.documentElement.classList.toggle('sidebar-collapsed', this.sidebarCollapsed);
+                this.$watch('sidebarCollapsed', value => {
+                    localStorage.setItem('fixbound.sidebarCollapsed', value);
+                    document.documentElement.classList.toggle('sidebar-collapsed', value);
+                });
             }
         }"
         @keydown.escape.window="mobileMenuOpen = false"
-        class="flex min-h-screen overflow-x-hidden">
+        class="flex min-h-screen overflow-x-clip">
 
-        {{-- Barra lateral --}}
+        {{-- Barra lateral: estructura rígida, no se estira ni se comprime con el contenido --}}
         <aside id="sidebar"
             :class="[
                 mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
                 sidebarCollapsed ? 'md:w-20' : 'md:w-72'
             ]"
-            class="fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-shrink-0 transform flex-col overflow-y-auto bg-[#1E055A] text-white shadow-2xl transition-all duration-300 ease-out md:static md:inset-auto md:z-auto md:h-auto md:min-h-screen md:self-stretch md:translate-x-0">
+            class="fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-shrink-0 flex-grow-0 basis-auto transform flex-col overflow-y-auto bg-[#1E055A] text-white shadow-2xl transition-all duration-300 ease-out md:z-30 md:translate-x-0">
             <div class="border-b border-indigo-800/50 p-6 transition-all duration-300" :class="sidebarCollapsed ? 'md:px-4' : 'md:p-6'">
                 <a href="{{url('/')}}" class="flex items-center gap-3" :class="sidebarCollapsed ? 'md:justify-center' : ''" title="FixBound">
                     <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
@@ -198,9 +220,12 @@
             aria-hidden="true"></div>
 
         {{-- Contenido principal --}}
-        <div id="contenedor-derecho" class="flex min-w-0 flex-1 flex-col">
+        <div id="contenedor-derecho"
+            :class="sidebarCollapsed ? 'md:ml-20' : 'md:ml-72'"
+            class="flex min-w-0 flex-1 flex-col transition-all duration-300 md:ml-72">
 
-            <header id="header-principal" class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-sm md:px-8 md:py-4">
+            {{-- Encabezado fijo (Sticky Header) --}}
+            <header id="header-principal" class="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-gray-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-sm md:px-8 md:py-4">
                 <div class="flex min-w-0 items-center gap-3">
                     <button
                         type="button"
