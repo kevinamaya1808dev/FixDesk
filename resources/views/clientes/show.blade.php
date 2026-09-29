@@ -10,7 +10,15 @@
         {{-- Header con nombre del cliente --}}
         <div class="bg-gradient-to-r from-[#2D1B69] to-[#1E1B2E] px-4 py-5 md:px-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex min-w-0 items-center gap-4">
+                                <div class="flex min-w-0 items-center gap-3">
+                    {{-- Botón volver a la lista de clientes --}}
+                    <a href="{{ route('clientes.index') }}"
+                       title="Volver a Clientes"
+                       class="flex-shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
                     <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-[#7C3AED]/20 md:h-16 md:w-16">
                         <span class="text-xl font-bold text-white md:text-2xl">
                             {{ substr($cliente->nombre, 0, 2) }}
@@ -150,7 +158,7 @@
                             {{ $orden->created_at->format('d/m/Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="{{ route('reparaciones.show', $orden) }}"
+                                                        <a href="{{ route('reparaciones.show', $orden) }}?modo=historial"
                                 class="inline-flex items-center gap-1 text-[#7C3AED] hover:text-[#2D1B69] font-medium text-sm transition-colors group">
                                 Ver
                                 <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

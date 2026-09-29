@@ -55,28 +55,50 @@
                 sidebarCollapsed ? 'md:w-20' : 'md:w-72'
             ]"
             class="fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-shrink-0 flex-grow-0 basis-auto transform flex-col overflow-y-auto bg-[#1E055A] text-white shadow-2xl transition-all duration-300 ease-out md:z-30 md:translate-x-0">
-            <div class="border-b border-indigo-800/50 p-6 transition-all duration-300" :class="sidebarCollapsed ? 'md:px-4' : 'md:p-6'">
-                <a href="{{url('/')}}" class="flex items-center gap-3" :class="sidebarCollapsed ? 'md:justify-center' : ''" title="FixBound">
-                    <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
-                        <span :class="sidebarCollapsed ? 'md:hidden' : ''">FixBound</span>
-                        <span class="hidden" :class="sidebarCollapsed ? 'md:inline' : 'md:hidden'">F</span>
-                    </h1>
-                </a>
+                        <div class="border-b border-indigo-800/50 p-6 transition-all duration-300" :class="sidebarCollapsed ? 'md:px-4' : 'md:p-6'">
 
-                <button
-                    type="button"
-                    x-show="sidebarCollapsed"
-                    x-cloak
-                    @click="sidebarCollapsed = false"
-                    class="mx-auto mt-4 hidden h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15 transition hover:bg-white/20 md:inline-flex"
-                    aria-label="Expandir navegación"
-                    title="Expandir navegación">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M4 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+                {{-- Expandido: logo a la izquierda, botón colapsar a la derecha --}}
+                <div x-show="!sidebarCollapsed" class="flex items-center justify-between gap-2">
+                    <a href="{{ url('/') }}" title="FixBound">
+                        <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+                            FixBound
+                        </h1>
+                    </a>
+                    <button
+                        type="button"
+                        @click="sidebarCollapsed = true"
+                        class="hidden h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15 transition hover:bg-white/20 md:inline-flex"
+                        aria-label="Colapsar navegación"
+                        title="Colapsar navegación">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M20 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                </div>
 
-                <p class="text-indigo-300 text-sm mt-1 font-medium transition-all duration-200" :class="sidebarCollapsed ? 'md:hidden' : ''">{{ auth()->user()->taller->nombre }}</p>
+                {{-- Colapsado: solo ícono "F" centrado y botón expandir abajo --}}
+                <div x-show="!sidebarCollapsed" class="mt-1">
+                    <p class="text-indigo-300 text-sm font-medium">{{ auth()->user()->taller->nombre }}</p>
+                </div>
+
+                <div x-cloak x-show="sidebarCollapsed" class="flex flex-col items-center gap-3">
+                    <a href="{{ url('/') }}" title="FixBound">
+                        <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+                            F
+                        </h1>
+                    </a>
+                    <button
+                        type="button"
+                        @click="sidebarCollapsed = false"
+                        class="hidden h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15 transition hover:bg-white/20 md:inline-flex"
+                        aria-label="Expandir navegación"
+                        title="Expandir navegación">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M4 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
             </div>
             <nav aria-label="Navegación principal" class="flex-1 p-4 transition-all duration-300" :class="sidebarCollapsed ? 'md:px-3' : 'md:p-4'" @click="if (window.innerWidth < 768) mobileMenuOpen = false">
                 <ul class="space-y-2">
@@ -236,18 +258,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <button
-                        type="button"
-                        x-show="!sidebarCollapsed"
-                        x-cloak
-                        @click="sidebarCollapsed = true"
-                        class="hidden h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white text-[#1E055A] shadow-sm ring-1 ring-gray-200 transition hover:bg-purple-50 md:inline-flex"
-                        aria-label="Colapsar navegación"
-                        title="Colapsar navegación">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M20 19l-7-7 7-7"></path>
-                        </svg>
-                    </button>
+                    
                     <span class="truncate text-lg font-bold tracking-tight text-[#1E055A] md:text-xl">@yield('titulo-pestana')</span>
                 </div>
 

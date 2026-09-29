@@ -4,6 +4,10 @@
 
 @section('contenido-principal')
 
+@php
+    $modoHistorial = request()->query('modo') === 'historial';
+@endphp
+
 <div class="mx-auto max-w-6xl space-y-5 md:space-y-6">
     {{-- Alerta de éxito --}}
     @if(session('success'))
@@ -15,14 +19,50 @@
     </div>
     @endif
 
+    {{-- Banner informativo en modo historial --}}
+    @if($modoHistorial)
+    <div class="bg-amber-50 border-l-4 border-amber-400 text-amber-800 p-4 rounded-lg shadow-sm flex items-center gap-3">
+        <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <p class="font-medium text-sm">Estás viendo esta orden en modo <strong>reporte histórico</strong>. La información es de solo lectura.</p>
+    </div>
+    @endif
+
     {{-- Ficha principal --}}
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         {{-- Header de la orden --}}
         <div class="bg-gradient-to-r from-[#2D1B69] to-[#1E1B2E] px-4 py-5 md:px-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div class="min-w-0">
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">{{ $reparacion->folio }}</h1>
-                    <p class="text-purple-200 text-sm mt-1">Orden de reparación</p>
+                <div class="flex items-center gap-3 min-w-0">
+                    {{-- Botón volver: en modo historial regresa al perfil del cliente, si no a órdenes --}}
+                    @if($modoHistorial)
+                    <a href="{{ route('clientes.show', $reparacion->cliente) }}"
+                       title="Volver al perfil del cliente"
+                       class="flex-shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    @else
+                    <a href="{{ route('reparaciones.index') }}"
+                       title="Volver a Órdenes"
+                       class="flex-shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-xl bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-white/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    @endif
+                    <div class="min-w-0">
+                        <h1 class="text-2xl md:text-3xl font-bold text-white">{{ $reparacion->folio }}</h1>
+                        <p class="text-purple-200 text-sm mt-1">
+                            @if($modoHistorial)
+                                Reporte histórico de orden
+                            @else
+                                Orden de reparación
+                            @endif
+                        </p>
+                    </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     @php
@@ -101,7 +141,13 @@
                 <dl class="space-y-2">
                     <div class="flex flex-wrap">
                         <dt class="w-32 text-gray-500 text-sm">Nombre:</dt>
-                        <dd class="text-gray-800"><a href="{{ route('clientes.show', $reparacion->cliente) }}" class="text-[#7C3AED] hover:text-[#2D1B69]">{{ $reparacion->cliente->nombre }}</a></dd>
+                        <dd class="text-gray-800">
+                            @if($modoHistorial)
+                                {{ $reparacion->cliente->nombre }}
+                            @else
+                                <a href="{{ route('clientes.show', $reparacion->cliente) }}" class="text-[#7C3AED] hover:text-[#2D1B69]">{{ $reparacion->cliente->nombre }}</a>
+                            @endif
+                        </dd>
                     </div>
                     <div class="flex flex-wrap">
                         <dt class="w-32 text-gray-500 text-sm">Teléfono:</dt>
@@ -144,7 +190,8 @@
                 </dl>
             </div>
 
-            {{-- Enlace de seguimiento --}}
+            {{-- Enlace de seguimiento: oculto en modo historial --}}
+            @if(!$modoHistorial)
             <div class="rounded-xl bg-gray-50 p-4 md:p-5">
                 <h2 class="text-lg font-semibold text-[#2D1B69] flex items-center gap-2 mb-4">
                     <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,8 +213,31 @@
                     </button>
                 </div>
             </div>
+            @else
+            {{-- En modo historial: mostrar diagnóstico técnico como 4to recuadro del grid --}}
+            <div class="rounded-xl bg-gray-50 p-4 md:p-5">
+                <h2 class="text-lg font-semibold text-[#2D1B69] flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Diagnóstico registrado
+                </h2>
+                <p class="text-gray-700 text-sm leading-relaxed">
+                    {{ $reparacion->diagnostico_tecnico ?? '—' }}
+                </p>
+                @if($reparacion->costo_final)
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <span class="text-gray-500 text-sm">Costo final: </span>
+                    <span class="font-semibold text-[#2D1B69]">${{ number_format($reparacion->costo_final, 2) }}</span>
+                </div>
+                @endif
+            </div>
+            @endif
         </div>
     </div>
+
+    {{-- Secciones de edición: solo en modo normal --}}
+    @if(!$modoHistorial)
 
     {{-- Actualizar orden --}}
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -294,7 +364,9 @@
         </div>
     </div>
 
-    {{-- Historial de escalamientos --}}
+    @endif {{-- fin !$modoHistorial --}}
+
+    {{-- Historial de escalamientos: visible en ambos modos --}}
     @if($reparacion->escalamientos->isNotEmpty())
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="border-b border-gray-100 bg-gradient-to-r from-[#7C3AED]/5 to-[#EC4899]/5 px-4 py-4 md:px-6">
@@ -325,23 +397,41 @@
     </div>
     @endif
 
-    {{-- Chat interno --}}
+    {{-- Chat --}}
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="border-b border-gray-100 bg-gradient-to-r from-[#7C3AED]/5 to-[#EC4899]/5 px-4 py-4 md:px-6">
             <h2 class="text-lg font-semibold text-[#2D1B69] flex items-center gap-2">
                 <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
-                Chat con el cliente
+                @if($modoHistorial) Historial de mensajes @else Chat con el cliente @endif
             </h2>
         </div>
         <div class="p-4 md:p-6">
-            <div id="chat-mensajes" class="mb-4 h-80 space-y-3 overflow-y-auto rounded-xl bg-gray-50 p-3 md:h-96 md:p-4">
-                {{-- Mensajes cargados por JS vía polling --}}
-                <div class="text-center text-gray-400 text-sm">Cargando mensajes...</div>
-            </div>
 
-            {{-- Mensaje prellenado para WhatsApp --}}
+            @if($modoHistorial)
+            {{-- MODO HISTORIAL: lista estática de todos los mensajes --}}
+            @php $mensajesHistorial = $reparacion->mensajes()->orderBy('created_at')->get(); @endphp
+            @if($mensajesHistorial->isEmpty())
+                <p class="text-center text-gray-400 text-sm py-6">No hubo mensajes en esta orden.</p>
+            @else
+            <div class="space-y-3">
+                @foreach($mensajesHistorial as $msg)
+                <div class="flex flex-col {{ $msg->es_del_cliente ? 'items-start' : 'items-end' }}">
+                    <div class="max-w-[92%] md:max-w-[80%] {{ $msg->es_del_cliente ? 'bg-gray-200 text-gray-800' : 'bg-[#7C3AED] text-white' }} rounded-2xl px-4 py-2">
+                        <div class="flex items-center gap-2 mb-1">
+                            <strong class="text-sm">{{ $msg->autor ?? ($msg->es_del_cliente ? $reparacion->cliente->nombre : 'Taller') }}</strong>
+                            <time class="text-[10px] opacity-70">{{ $msg->created_at->format('d/m/Y H:i') }}</time>
+                        </div>
+                        <p class="text-sm break-words">{{ $msg->contenido }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            @else
+            {{-- MODO NORMAL: chat con polling y formulario --}}
             @php
                 $waMensaje = 'Hola ' . ($reparacion->cliente->nombre ?? 'cliente')
                     . ', te contactamos del taller sobre tu orden con folio '
@@ -356,6 +446,10 @@
                     : null;
             @endphp
 
+            <div id="chat-mensajes" class="mb-4 h-80 space-y-3 overflow-y-auto rounded-xl bg-gray-50 p-3 md:h-96 md:p-4">
+                <div class="text-center text-gray-400 text-sm">Cargando mensajes...</div>
+            </div>
+
             <form id="chat-form" class="space-y-3">
                 @csrf
                 <div>
@@ -365,7 +459,6 @@
                         placeholder="Escribe un mensaje..."></textarea>
                 </div>
 
-                {{-- Fila de botones: "Enviar mensaje" + botón WhatsApp --}}
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-6 py-2.5 font-medium text-white shadow-md transition-all hover:bg-[#6D28D9] hover:shadow-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,14 +473,12 @@
                        rel="noopener noreferrer"
                        title="Abrir chat de WhatsApp con {{ $reparacion->cliente->nombre ?? 'el cliente' }}"
                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 font-medium text-white shadow-md transition-all hover:bg-[#1ebe5a] hover:shadow-lg">
-                        {{-- Icono vectorial oficial de WhatsApp --}}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5" aria-hidden="true">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                         </svg>
                         WhatsApp
                     </a>
                     @else
-                    {{-- Sin teléfono registrado: botón deshabilitado --}}
                     <span title="El cliente no tiene teléfono registrado"
                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-4 py-2.5 font-medium text-gray-400 cursor-not-allowed select-none">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5" aria-hidden="true">
@@ -398,10 +489,13 @@
                     @endif
                 </div>
             </form>
+            @endif
+
         </div>
     </div>
 </div>
 
+@if(!$modoHistorial)
 <script>
     const chatUrl = "{{ route('reparaciones.mensajes.index', $reparacion) }}";
     const chatStoreUrl = "{{ route('reparaciones.mensajes.store', $reparacion) }}";
@@ -439,9 +533,7 @@
             if (maxId <= lastMessageId) return;
             lastMessageId = maxId;
             renderMensajes(mensajes);
-        } catch (e) {
-            // Error silencioso
-        }
+        } catch (e) {}
     }
 
     document.getElementById('chat-form').addEventListener('submit', async function(e) {
@@ -461,9 +553,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({
-                    contenido
-                })
+                body: JSON.stringify({ contenido })
             });
 
             if (res.ok) {
@@ -486,5 +576,6 @@
     cargarMensajes();
     setInterval(cargarMensajes, 5000);
 </script>
+@endif
 
 @endsection
