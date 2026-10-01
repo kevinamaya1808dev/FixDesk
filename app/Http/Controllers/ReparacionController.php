@@ -218,6 +218,20 @@ class ReparacionController extends Controller
                     ->send(new ReparacionListaMail($reparacion));
             }
         }
+        $origen = $request->input('_origen');
+
+        if ($origen === 'panel') {
+            return redirect()->route('panel.inicio')
+                ->with('success', "Orden {$reparacion->folio} actualizada a \"{$reparacion->estado}\".");
+        }
+
+        if ($origen === 'index') {
+            return redirect()->route('reparaciones.index')
+                ->with('success', "Orden {$reparacion->folio} actualizada a \"{$reparacion->estado}\".");
+        }
+
+        return redirect()->route('reparaciones.show', $reparacion)
+            ->with('success', 'Orden actualizada correctamente.');
 
         return redirect()->route('reparaciones.show', $reparacion)
             ->with('success', 'Orden actualizada correctamente.');
