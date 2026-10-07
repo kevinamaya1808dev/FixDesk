@@ -120,45 +120,193 @@
             </div>
         </div>
 
-        {{-- BLOQUE 2: Datos del dispositivo --}}
+                {{-- BLOQUE 2: Datos del dispositivo --}}
         <div class="bg-white rounded-2xl shadow-md border border-gray-100" style="overflow: visible !important;">
             <div class="border-b border-gray-100 bg-gradient-to-r from-[#7C3AED]/5 to-[#EC4899]/5 px-4 py-4 md:px-6">
                 <legend class="text-lg font-semibold text-[#2D1B69] flex items-center gap-2">
                     <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 3h14a2 2 0 01-2 2H7a2 2 0 01-2-2zm0 0v16a2 2 0 002 2h10a2 2 0 002-2V5"></path>
                     </svg>
-                    Datos del dispositivo
+                    Dispositivos
                 </legend>
             </div>
-            <div class="p-4 md:p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
 
-                        <!-- Con valores personalizados -->
-                        <x-tipo-equipo-select
-                            name="tipo_equipo"
-                            :selected="old('tipo_equipo', 'Laptop')"
-                            :required="true" />
-                    </div>
-                    <div>
-                        <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca <span class="text-red-500">*</span></label>
-                        <input type="text" id="marca" name="marca" value="{{ old('marca') }}" required
-                            class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all" />
-                    </div>
-                    <div>
-                        <label for="modelo" class="block text-sm font-medium text-gray-700 mb-1">Modelo <span class="text-red-500">*</span></label>
-                        <input type="text" id="modelo" name="modelo" value="{{ old('modelo') }}" required
-                            class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all" />
-                    </div>
-                    <div>
-                        <label for="numero_serie" class="block text-sm font-medium text-gray-700 mb-1">Número de serie <span class="text-gray-400 text-xs">(opcional)</span></label>
-                        <input type="text" id="numero_serie" name="numero_serie" value="{{ old('numero_serie') }}"
-                            class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all" />
-                    </div>
+            <div class="p-4 md:p-6" x-data="{
+                grupos: [
+                    { tipo: 'Laptop', cantidad: 1, articulos: [{ marca: '', modelo: '', numero_serie: '' }] }
+                ],
+
+                tiposDisponibles: [
+                    'Laptop','Smartphone','Tablet','PC de Escritorio','Monitor',
+                    'Impresora','Consola de videojuegos','Smartwatch','Televisión',
+                    'Router / Módem','Otro'
+                ],
+
+                agregarGrupo() {
+                    this.grupos.push({
+                        tipo: 'Laptop',
+                        cantidad: 1,
+                        articulos: [{ marca: '', modelo: '', numero_serie: '' }]
+                    });
+                },
+
+                eliminarGrupo(gi) {
+                    if (this.grupos.length === 1) return;
+                    this.grupos.splice(gi, 1);
+                },
+
+                setCantidad(gi, n) {
+                    const grupo = this.grupos[gi];
+                    if (grupo.cantidad === n) {
+                        n = 1;
+                    }
+                    grupo.cantidad = n;
+                    const actual = grupo.articulos.length;
+                    if (n > actual) {
+                        for (let i = actual; i < n; i++) {
+                            grupo.articulos.push({ marca: '', modelo: '', numero_serie: '' });
+                        }
+                    } else {
+                        grupo.articulos = grupo.articulos.slice(0, n);
+                    }
+                },
+
+                resumen() {
+                    return this.grupos.map(g =>
+                        g.cantidad + ' ' + g.tipo + (g.cantidad > 1 ? '(s)' : '')
+                    ).join(', ');
+                }
+            }">
+
+                {{-- Resumen dinámico --}}
+                <div class="mb-5 rounded-xl bg-[#7C3AED]/5 border border-[#7C3AED]/20 px-4 py-3 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-[#7C3AED] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p class="text-sm text-[#2D1B69]">
+                        Esta orden incluye: <strong x-text="resumen()"></strong>
+                    </p>
                 </div>
+
+                {{-- Grupos de dispositivos --}}
+                <div class="space-y-6">
+                    <template x-for="(grupo, gi) in grupos" :key="gi">
+                        <div class="rounded-2xl border-2 border-gray-200 bg-gray-50 overflow-hidden">
+
+                            {{-- Header del grupo --}}
+                            <div class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-3">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <span class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-[#7C3AED]/10 text-xs font-bold text-[#7C3AED]" x-text="gi + 1"></span>
+                                    {{-- Selector de tipo --}}
+                                    <select
+                                        :name="`grupos[${gi}][tipo]`"
+                                        x-model="grupo.tipo"
+                                        class="flex-1 min-w-0 rounded-xl border border-gray-300 px-3 py-1.5 text-sm font-medium text-[#2D1B69] focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20">
+                                        <template x-for="tipo in tiposDisponibles" :key="tipo">
+                                            <option :value="tipo" :selected="grupo.tipo === tipo" x-text="tipo"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="eliminarGrupo(gi)"
+                                    x-show="grupos.length > 1"
+                                    title="Eliminar este grupo"
+                                    class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="p-4 space-y-4">
+
+                                {{-- Selector de cantidad --}}
+                                <div>
+                                    <p class="text-xs font-medium text-gray-600 mb-2">
+                                        Cantidad
+                                        <span class="font-normal text-gray-400">(toca un número; tócalo de nuevo para volver a 1)</span>
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="n in [1,2,3,4,5,6,7,8,9,10]" :key="n">
+                                            <button
+                                                type="button"
+                                                @click="setCantidad(gi, n)"
+                                                :class="grupo.cantidad === n
+                                                    ? 'bg-[#7C3AED] text-white ring-2 ring-[#7C3AED] ring-offset-1 scale-110 shadow-md'
+                                                    : 'bg-white border border-gray-300 text-gray-600 hover:border-[#7C3AED] hover:text-[#7C3AED]'"
+                                                class="h-8 w-8 rounded-lg text-sm font-semibold transition-all duration-150 flex items-center justify-center"
+                                                x-text="n">
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Filas de artículos --}}
+                                <div class="space-y-3">
+                                    <template x-for="(articulo, ai) in grupo.articulos" :key="ai">
+                                        <div class="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3">
+
+                                            {{-- Número de artículo --}}
+                                            <span class="flex-shrink-0 text-xs font-bold text-gray-400 w-5 text-center" x-text="ai + 1"></span>
+
+                                            {{-- Marca --}}
+                                            <div class="flex-1 min-w-[120px]">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">Marca <span class="text-red-400">*</span></label>
+                                                <input
+                                                    type="text"
+                                                    :name="`grupos[${gi}][articulos][${ai}][marca]`"
+                                                    x-model="articulo.marca"
+                                                    required
+                                                    placeholder="Ej: Dell, Apple…"
+                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                            </div>
+
+                                            {{-- Modelo --}}
+                                            <div class="flex-1 min-w-[140px]">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">Modelo <span class="text-red-400">*</span></label>
+                                                <input
+                                                    type="text"
+                                                    :name="`grupos[${gi}][articulos][${ai}][modelo]`"
+                                                    x-model="articulo.modelo"
+                                                    required
+                                                    placeholder="Ej: Inspiron 15…"
+                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                            </div>
+
+                                            {{-- N° de serie --}}
+                                            <div class="flex-1 min-w-[120px]">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1">N.° de serie <span class="text-gray-400 font-normal">(opcional)</span></label>
+                                                <input
+                                                    type="text"
+                                                    :name="`grupos[${gi}][articulos][${ai}][numero_serie]`"
+                                                    x-model="articulo.numero_serie"
+                                                    placeholder="Ej: SN123456"
+                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                            </div>
+
+                                        </div>
+                                    </template>
+                                </div>
+
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Botón agregar tipo --}}
+                <button
+                    type="button"
+                    @click="agregarGrupo()"
+                    class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#7C3AED]/30 py-3 text-sm font-medium text-[#7C3AED] transition hover:border-[#7C3AED] hover:bg-[#7C3AED]/5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Agregar otro tipo de dispositivo
+                </button>
+
             </div>
         </div>
-
         {{-- BLOQUE 3: Nivel y técnico --}}
         <div class="bg-white rounded-2xl shadow-md border border-gray-100" style="overflow: visible !important;">
             <div class="border-b border-gray-100 bg-gradient-to-r from-[#7C3AED]/5 to-[#EC4899]/5 px-4 py-4 md:px-6">

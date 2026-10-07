@@ -103,12 +103,15 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 2. Crear taller demo
+                // 2. Crear taller demo
         $taller = Taller::create([
-            'nombre'             => 'Taller Demo FixBound',
-            'telefono'           => '5500000000',
-            'direccion'          => 'Calle Ejemplo 123, Ciudad',
-            'suscripcion_activa' => true,
+            'nombre'              => 'Taller Demo FixBound',
+            'telefono'            => '5500000000',
+            'direccion'           => 'Calle Ejemplo 123, Ciudad',
+            'suscripcion_activa'  => true,
+            'plan_id'             => $planBasico->id,
+            'subscription_status' => 'active',
+            'subscription_ends_at'=> now()->addYears(10),
         ]);
 
         // 3. Crear usuario admin del taller

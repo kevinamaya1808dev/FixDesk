@@ -105,7 +105,7 @@ class ReparacionController extends Controller
         return view('reparaciones.create', compact('niveles', 'clientes', 'tecnicos'));
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $tallerId = auth()->user()->taller_id;
 
@@ -113,69 +113,95 @@ class ReparacionController extends Controller
             // Cliente
             'cliente_id' => [
                 'nullable',
-                Rule::exists('clientes', 'id')->where(fn ($query) => $query->where('taller_id', $tallerId)),
+                Rule::exists('clientes', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId)),
             ],
-            'cliente_nombre' => ['nullable', 'required_without:cliente_id', 'string', 'max:255'],
-            'cliente_email' => ['nullable', 'email', 'max:255'],
+            'cliente_nombre'   => ['nullable', 'required_without:cliente_id', 'string', 'max:255'],
+            'cliente_email'    => ['nullable', 'email', 'max:255'],
             'cliente_telefono' => ['nullable', 'string', 'max:20'],
-            // Dispositivo
-            'tipo_equipo' => ['required', 'string', 'max:100'],
-            'marca' => ['required', 'string', 'max:100'],
-            'modelo' => ['required', 'string', 'max:100'],
-            'numero_serie' => ['nullable', 'string', 'max:100'],
-            // Reparación
-            'nivel_id' => ['required', 'exists:niveles_reparacion,id'],
-            'user_id' => [
+
+            // Grupos de dispositivos
+            'grupos'                              => ['required', 'array', 'min:1'],
+            'grupos.*.tipo'                       => ['required', 'string', 'max:100'],
+            'grupos.*.articulos'                  => ['required', 'array', 'min:1'],
+            'grupos.*.articulos.*.marca'          => ['required', 'string', 'max:100'],
+            'grupos.*.articulos.*.modelo'         => ['required', 'string', 'max:100'],
+            'grupos.*.articulos.*.numero_serie'   => ['nullable', 'string', 'max:100'],
+
+            // Reparación compartida
+            'nivel_id'          => ['required', 'exists:niveles_reparacion,id'],
+            'user_id'           => [
                 'nullable',
-                Rule::exists('users', 'id')->where(fn ($query) => $query->where('taller_id', $tallerId)),
+                Rule::exists('users', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId)),
             ],
             'problema_reportado' => ['required', 'string'],
-            'costo_estimado' => ['nullable', 'numeric', 'min:0'],
+            'costo_estimado'     => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        // Resolver o crear el cliente
+        // ── Resolver o crear cliente ──────────────────────────
         if (! empty($data['cliente_id'])) {
             $cliente = Cliente::where('taller_id', $tallerId)->findOrFail($data['cliente_id']);
         } else {
             $cliente = Cliente::create([
                 'taller_id' => $tallerId,
-                'nombre' => $data['cliente_nombre'],
-                'email' => $data['cliente_email'] ?? null,
-                'telefono' => $data['cliente_telefono'] ?? null,
+                'nombre'    => $data['cliente_nombre'],
+                'email'     => $data['cliente_email'] ?? null,
+                'telefono'  => $data['cliente_telefono'] ?? null,
             ]);
         }
 
-        // Calcular hora_limite según el SLA del nivel
-        $nivel = NivelReparacion::findOrFail($data['nivel_id']);
+        // ── Datos compartidos ─────────────────────────────────
+        $nivel      = NivelReparacion::findOrFail($data['nivel_id']);
         $horaIngreso = now();
-        $horaLimite = now()->addHours($nivel->horas_sla);
+        $horaLimite  = now()->addHours($nivel->horas_sla);
+        $folioGrupo  = Reparacion::generarFolioGrupo($tallerId);
 
-        $reparacion = Reparacion::create([
-            'taller_id' => $tallerId,
-            'cliente_id' => $cliente->id,
-            'user_id' => $data['user_id'] ?? null,
-            'nivel_id' => $nivel->id,
-            'folio' => Reparacion::generarFolio($tallerId),
-            'token_seguimiento' => Reparacion::generarToken(),
-            'tipo_equipo' => $data['tipo_equipo'],
-            'marca' => $data['marca'],
-            'modelo' => $data['modelo'],
-            'numero_serie' => $data['numero_serie'] ?? null,
-            'problema_reportado' => $data['problema_reportado'],
-            'costo_estimado' => $data['costo_estimado'] ?? null,
-            'estado' => 'Recibido',
-            'hora_ingreso' => $horaIngreso,
-            'hora_limite' => $horaLimite,
-        ]);
+        $primeraReparacion = null;
+        $totalArticulos    = 0;
 
-        // Enviar email de confirmación al cliente con la URL de seguimiento
-        if ($reparacion->cliente->email) {
-            Mail::to($reparacion->cliente->email)
-                ->send(new OrdenCreadaMail($reparacion));
+        foreach ($data['grupos'] as $gi => $grupo) {
+            foreach ($grupo['articulos'] as $ai => $articulo) {
+
+                $totalArticulos++;
+                $folioIndividual = Reparacion::folioArticulo($folioGrupo, $gi, $ai);
+
+                $reparacion = Reparacion::create([
+                    'taller_id'          => $tallerId,
+                    'cliente_id'         => $cliente->id,
+                    'user_id'            => $data['user_id'] ?? null,
+                    'nivel_id'           => $nivel->id,
+                    'folio'              => $folioIndividual,
+                    'folio_grupo'        => $folioGrupo,
+                    'articulo_num'       => $totalArticulos,
+                    'token_seguimiento'  => Reparacion::generarToken(),
+                    'tipo_equipo'        => $grupo['tipo'],
+                    'marca'              => $articulo['marca'],
+                    'modelo'             => $articulo['modelo'],
+                    'numero_serie'       => $articulo['numero_serie'] ?? null,
+                    'problema_reportado' => $data['problema_reportado'],
+                    'costo_estimado'     => $data['costo_estimado'] ?? null,
+                    'estado'             => 'Recibido',
+                    'hora_ingreso'       => $horaIngreso,
+                    'hora_limite'        => $horaLimite,
+                ]);
+
+                $primeraReparacion ??= $reparacion;
+            }
         }
 
-        return redirect()->route('reparaciones.show', $reparacion)
-            ->with('success', "Orden {$reparacion->folio} creada correctamente.");
+        // ── Email solo una vez por lote ───────────────────────
+        if ($cliente->email) {
+            Mail::to($cliente->email)->send(new OrdenCreadaMail($primeraReparacion));
+        }
+
+        // ── Mensaje de éxito ──────────────────────────────────
+        if ($totalArticulos === 1) {
+            $msg = "Orden {$primeraReparacion->folio} creada correctamente.";
+        } else {
+            $msg = "Lote {$folioGrupo} creado con {$totalArticulos} artículos.";
+        }
+
+        return redirect()->route('reparaciones.show', $primeraReparacion)
+            ->with('success', $msg);
     }
 
     public function show(Reparacion $reparacion)

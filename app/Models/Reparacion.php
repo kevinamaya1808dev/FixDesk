@@ -16,6 +16,8 @@ class Reparacion extends Model
         'user_id',
         'nivel_id',
         'folio',
+         'folio_grupo',       // ← nuevo
+        'articulo_num',      // ← nuevo
         'token_seguimiento',
         'tipo_equipo',
         'marca',
@@ -68,6 +70,23 @@ class Reparacion extends Model
     public function escalamientos()
     {
         return $this->hasMany(Escalamiento::class)->orderBy('created_at');
+    }
+        /**
+     * Todas las reparaciones del mismo lote (mismo folio_grupo).
+     */
+    public function hermanas()
+    {
+        return $this->hasMany(Reparacion::class, 'folio_grupo', 'folio_grupo')
+            ->where('id', '!=', $this->id)
+            ->orderBy('articulo_num');
+    }
+
+    /**
+     * ¿Esta orden pertenece a un lote de varios artículos?
+     */
+    public function esLote(): bool
+    {
+        return Reparacion::where('folio_grupo', $this->folio_grupo)->count() > 1;
     }
 
     // ─── Scopes ──────────────────────────────────────────────
@@ -126,7 +145,10 @@ class Reparacion extends Model
     /**
      * Genera un folio globalmente único: FF-{CODIGO_TALLER}-YYYY-XXXX
      */
-    public static function generarFolio(int $tallerId): string
+        /**
+     * Genera el folio base del grupo: FF-{CODIGO}-YYYY-XXXX
+     */
+    public static function generarFolioGrupo(int $tallerId): string
     {
         $taller = Taller::findOrFail($tallerId);
         $codigoTaller = $taller->codigo_publico;
@@ -139,17 +161,24 @@ class Reparacion extends Model
         $anio = now()->year;
         $prefijo = "FF-{$codigoTaller}-{$anio}-";
 
-        // Obtener el número más alto ya usado por este taller en el año actual
-        // Usar max() sobre el sufijo numérico es más seguro que count()
-        // porque count() fallaría si alguna orden fue eliminada (generaría duplicados)
         $ultimo = self::where('taller_id', $tallerId)
             ->whereYear('created_at', $anio)
-            ->selectRaw('MAX(CAST(SUBSTRING(folio, ?) AS UNSIGNED)) as max_num', [strlen($prefijo) + 1])
+            ->selectRaw('MAX(CAST(SUBSTRING(folio_grupo, ?) AS UNSIGNED)) as max_num', [strlen($prefijo) + 1])
             ->value('max_num') ?? 0;
 
         $numero = str_pad($ultimo + 1, 4, '0', STR_PAD_LEFT);
 
         return "{$prefijo}{$numero}";
+    }
+
+    /**
+     * Folio individual: folio_grupo + sufijo de artículo (A1, A2, B1…)
+     * gi = índice de grupo (0-based), ai = índice de artículo dentro del grupo (0-based)
+     */
+    public static function folioArticulo(string $folioGrupo, int $gi, int $ai): string
+    {
+        $letra = chr(65 + $gi); // A, B, C…
+        return "{$folioGrupo}-{$letra}" . ($ai + 1);
     }
 
     /**

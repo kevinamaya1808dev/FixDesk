@@ -15,8 +15,10 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('nivel_id')->constrained('niveles_reparacion')->restrictOnDelete();
 
-            // Identificación única
-            $table->string('folio')->unique();
+                        // Identificación única
+            $table->string('folio')->unique();               // FF-TALLER-2026-0001-A1 (individual)
+            $table->string('folio_grupo')->index();          // FF-TALLER-2026-0001    (compartido por el lote)
+            $table->unsignedTinyInteger('articulo_num')->default(1); // 1, 2, 3…
             $table->string('token_seguimiento')->unique();
 
             // Datos del dispositivo
