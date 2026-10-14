@@ -15,32 +15,35 @@ use Illuminate\Validation\Rule;
 
 class ReparacionController extends Controller
 {
+    // ── Lista paginada de órdenes con filtros ─────────────────
     public function index(Request $request)
     {
         $tallerId = auth()->user()->taller_id;
 
         $filtrosEstado = [
-            'activas' => 'Activas',
-            'Recibido' => 'Recibido',
-            'En Revisión' => 'En Revisión',
+            'activas'         => 'Activas',
+            'Recibido'        => 'Recibido',
+            'En Revisión'     => 'En Revisión',
             'Esperando Pieza' => 'Esperando Pieza',
-            'Retardo' => 'Retardo',
-            'Reparado' => 'Reparado',
+            'Retardo'         => 'Retardo',
+            'Reparado'        => 'Reparado',
         ];
 
         $estadoSolicitado = $request->query('estado', 'activas');
-        $estadoActual = array_key_exists($estadoSolicitado, $filtrosEstado)
+        $estadoActual     = array_key_exists($estadoSolicitado, $filtrosEstado)
             ? $estadoSolicitado
             : 'activas';
-        $estadoInvalido = $request->filled('estado') && ! array_key_exists($estadoSolicitado, $filtrosEstado);
+        $estadoInvalido   = $request->filled('estado') && ! array_key_exists($estadoSolicitado, $filtrosEstado);
 
+        // Solo columnas necesarias para los selectores de filtro
         $tecnicos = User::where('taller_id', $tallerId)
             ->where('rol', 'tecnico')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $tecnicoActual = null;
+        $tecnicoActual   = null;
         $tecnicoInvalido = false;
+
         if ($request->filled('tecnico_id')) {
             $tecnicoId = (int) $request->query('tecnico_id');
             if ($tecnicos->contains('id', $tecnicoId)) {
@@ -52,16 +55,17 @@ class ReparacionController extends Controller
 
         $soloRetrasadas = $request->boolean('retraso');
 
+        // Redirigir limpiando parámetros inválidos
         if ($estadoInvalido || $tecnicoInvalido) {
             return redirect()->route('reparaciones.index', array_filter([
-                'estado' => $estadoActual !== 'activas' ? $estadoActual : null,
+                'estado'     => $estadoActual !== 'activas' ? $estadoActual : null,
                 'tecnico_id' => $tecnicoActual,
-                'retraso' => $soloRetrasadas ? 1 : null,
-            ], fn ($value) => filled($value)));
+                'retraso'    => $soloRetrasadas ? 1 : null,
+            ], fn ($v) => filled($v)));
         }
 
         $query = Reparacion::delTaller($tallerId)
-            ->with(['cliente', 'tecnico', 'nivel']);
+            ->with(['cliente:id,nombre', 'tecnico:id,name', 'nivel:id,nivel,nombre']);
 
         if ($estadoActual === 'activas') {
             $query->activas();
@@ -74,102 +78,86 @@ class ReparacionController extends Controller
         }
 
         if ($soloRetrasadas) {
-            $query
-                ->where('hora_limite', '<', now())
-                ->whereNotIn('estado', ['Reparado', 'Entregado', 'Cancelado']);
+            $query->where('hora_limite', '<', now())
+                  ->whereNotIn('estado', ['Reparado', 'Entregado', 'Cancelado']);
         }
 
-        $reparaciones = $query
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+        $reparaciones = $query->latest()->paginate(20)->withQueryString();
 
         return view('reparaciones.index', compact(
-            'reparaciones',
-            'estadoActual',
-            'tecnicoActual',
-            'soloRetrasadas',
-            'filtrosEstado',
-            'tecnicos'
+            'reparaciones', 'estadoActual', 'tecnicoActual',
+            'soloRetrasadas', 'filtrosEstado', 'tecnicos'
         ));
     }
 
+    // ── Formulario de nueva orden ─────────────────────────────
     public function create()
     {
         $tallerId = auth()->user()->taller_id;
 
-        $niveles = NivelReparacion::orderBy('nivel')->get();
-        $clientes = Cliente::where('taller_id', $tallerId)->orderBy('nombre')->get();
-        $tecnicos = User::where('taller_id', $tallerId)->orderBy('name')->get();
-
-        return view('reparaciones.create', compact('niveles', 'clientes', 'tecnicos'));
+        return view('reparaciones.create', [
+            'niveles'   => NivelReparacion::orderBy('nivel')->get(),
+            'clientes'  => Cliente::where('taller_id', $tallerId)->orderBy('nombre')->get(['id', 'nombre']),
+            'tecnicos'  => User::where('taller_id', $tallerId)->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
-        public function store(Request $request)
+    // ── Guardar lote de órdenes (uno o varios artículos) ──────
+    public function store(Request $request)
     {
         $tallerId = auth()->user()->taller_id;
 
         $data = $request->validate([
             // Cliente
-            'cliente_id' => [
-                'nullable',
-                Rule::exists('clientes', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId)),
-            ],
+            'cliente_id'       => ['nullable', Rule::exists('clientes', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId))],
             'cliente_nombre'   => ['nullable', 'required_without:cliente_id', 'string', 'max:255'],
             'cliente_email'    => ['nullable', 'email', 'max:255'],
             'cliente_telefono' => ['nullable', 'string', 'max:20'],
 
-            // Grupos de dispositivos
+            // Grupos y artículos individuales
             'grupos'                              => ['required', 'array', 'min:1'],
             'grupos.*.tipo'                       => ['required', 'string', 'max:100'],
             'grupos.*.articulos'                  => ['required', 'array', 'min:1'],
             'grupos.*.articulos.*.marca'          => ['required', 'string', 'max:100'],
             'grupos.*.articulos.*.modelo'         => ['required', 'string', 'max:100'],
             'grupos.*.articulos.*.numero_serie'   => ['nullable', 'string', 'max:100'],
+            'grupos.*.articulos.*.nivel_id'       => ['required', 'exists:niveles_reparacion,id'],
 
-            // Reparación compartida
-            'nivel_id'          => ['required', 'exists:niveles_reparacion,id'],
-            'user_id'           => [
-                'nullable',
-                Rule::exists('users', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId)),
-            ],
+            // Datos comunes del lote
+            'user_id'            => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId))],
             'problema_reportado' => ['required', 'string'],
             'costo_estimado'     => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        // ── Resolver o crear cliente ──────────────────────────
-        if (! empty($data['cliente_id'])) {
-            $cliente = Cliente::where('taller_id', $tallerId)->findOrFail($data['cliente_id']);
-        } else {
-            $cliente = Cliente::create([
+        // Resolver o crear cliente
+        $cliente = ! empty($data['cliente_id'])
+            ? Cliente::where('taller_id', $tallerId)->findOrFail($data['cliente_id'])
+            : Cliente::create([
                 'taller_id' => $tallerId,
                 'nombre'    => $data['cliente_nombre'],
-                'email'     => $data['cliente_email'] ?? null,
+                'email'     => $data['cliente_email']    ?? null,
                 'telefono'  => $data['cliente_telefono'] ?? null,
             ]);
-        }
 
-        // ── Datos compartidos ─────────────────────────────────
-        $nivel      = NivelReparacion::findOrFail($data['nivel_id']);
-        $horaIngreso = now();
-        $horaLimite  = now()->addHours($nivel->horas_sla);
-        $folioGrupo  = Reparacion::generarFolioGrupo($tallerId);
-
+        $folioGrupo        = Reparacion::generarFolioGrupo($tallerId);
+        $horaIngreso       = now();
         $primeraReparacion = null;
         $totalArticulos    = 0;
 
         foreach ($data['grupos'] as $gi => $grupo) {
             foreach ($grupo['articulos'] as $ai => $articulo) {
 
+                // Nivel y SLA propios de cada artículo
+                $nivel      = NivelReparacion::findOrFail($articulo['nivel_id']);
+                $horaLimite = $horaIngreso->copy()->addHours($nivel->horas_sla);
                 $totalArticulos++;
-                $folioIndividual = Reparacion::folioArticulo($folioGrupo, $gi, $ai);
 
                 $reparacion = Reparacion::create([
                     'taller_id'          => $tallerId,
                     'cliente_id'         => $cliente->id,
                     'user_id'            => $data['user_id'] ?? null,
                     'nivel_id'           => $nivel->id,
-                    'folio'              => $folioIndividual,
+                    'folio'              => Reparacion::folioArticulo($folioGrupo, $gi, $ai),
                     'folio_grupo'        => $folioGrupo,
                     'articulo_num'       => $totalArticulos,
                     'token_seguimiento'  => Reparacion::generarToken(),
@@ -188,62 +176,64 @@ class ReparacionController extends Controller
             }
         }
 
-        // ── Email solo una vez por lote ───────────────────────
+        // Email de confirmación una sola vez por lote
         if ($cliente->email) {
             Mail::to($cliente->email)->send(new OrdenCreadaMail($primeraReparacion));
         }
 
-        // ── Mensaje de éxito ──────────────────────────────────
-        if ($totalArticulos === 1) {
-            $msg = "Orden {$primeraReparacion->folio} creada correctamente.";
-        } else {
-            $msg = "Lote {$folioGrupo} creado con {$totalArticulos} artículos.";
-        }
+        $msg = $totalArticulos === 1
+            ? "Orden {$primeraReparacion->folio} creada correctamente."
+            : "Lote {$folioGrupo} creado con {$totalArticulos} artículos.";
 
-        return redirect()->route('reparaciones.show', $primeraReparacion)
-            ->with('success', $msg);
+        return redirect()->route('reparaciones.show', $primeraReparacion)->with('success', $msg);
     }
 
+    // ── Detalle de una orden ──────────────────────────────────
     public function show(Reparacion $reparacion)
     {
         $this->autorizarTaller($reparacion);
 
-        $reparacion->load(['cliente', 'tecnico', 'nivel', 'mensajes.user', 'escalamientos.nivelAnterior', 'escalamientos.nivelNuevo', 'escalamientos.user']);
+        $reparacion->load([
+            'cliente', 'tecnico', 'nivel',
+            'mensajes.user:id,name',
+            'escalamientos.nivelAnterior:id,nombre',
+            'escalamientos.nivelNuevo:id,nombre',
+            'escalamientos.user:id,name',
+        ]);
 
-        $niveles = NivelReparacion::orderBy('nivel')->get();
-        $tecnicos = User::where('taller_id', auth()->user()->taller_id)->orderBy('name')->get();
-
-        return view('reparaciones.show', compact('reparacion', 'niveles', 'tecnicos'));
+        return view('reparaciones.show', [
+            'reparacion' => $reparacion,
+            'niveles'    => NivelReparacion::orderBy('nivel')->get(),
+            'tecnicos'   => User::where('taller_id', auth()->user()->taller_id)->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
+    // ── Actualizar estado, técnico, diagnóstico o costo ───────
     public function update(Request $request, Reparacion $reparacion)
     {
         $this->autorizarTaller($reparacion);
 
         $data = $request->validate([
-            'estado' => ['sometimes', 'in:Recibido,En Revisión,Esperando Pieza,Reparado,Entregado,Cancelado,Retardo'],
+            'estado'              => ['sometimes', 'in:Recibido,En Revisión,Esperando Pieza,Reparado,Entregado,Cancelado,Retardo'],
             'diagnostico_tecnico' => ['sometimes', 'nullable', 'string'],
-            'comentario_retardo' => ['sometimes', 'nullable', 'string'],
-            'costo_final' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'user_id' => [
-                'sometimes',
-                'nullable',
-                Rule::exists('users', 'id')->where(fn ($query) => $query->where('taller_id', auth()->user()->taller_id)),
-            ],
+            'comentario_retardo'  => ['sometimes', 'nullable', 'string'],
+            'costo_final'         => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'user_id'             => ['sometimes', 'nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('taller_id', auth()->user()->taller_id))],
         ]);
 
         $estadoAnterior = $reparacion->estado;
         $reparacion->update($data);
 
-        // Si se marca como Reparado: registrar hora_fin y enviar email al cliente
+        // Al marcar como Reparado: registrar hora de fin y notificar al cliente
         if (isset($data['estado']) && $data['estado'] === 'Reparado' && $estadoAnterior !== 'Reparado') {
             $reparacion->update(['hora_fin' => now()]);
 
             if ($reparacion->cliente->email) {
-                Mail::to($reparacion->cliente->email)
-                    ->send(new ReparacionListaMail($reparacion));
+                Mail::to($reparacion->cliente->email)->send(new ReparacionListaMail($reparacion));
             }
         }
+
+        // Redirigir según el origen de la petición
         $origen = $request->input('_origen');
 
         if ($origen === 'panel') {
@@ -258,38 +248,32 @@ class ReparacionController extends Controller
 
         return redirect()->route('reparaciones.show', $reparacion)
             ->with('success', 'Orden actualizada correctamente.');
-
-        return redirect()->route('reparaciones.show', $reparacion)
-            ->with('success', 'Orden actualizada correctamente.');
     }
 
+    // ── Escalar nivel de reparación ───────────────────────────
     public function escalar(Request $request, Reparacion $reparacion)
     {
         $this->autorizarTaller($reparacion);
 
         $data = $request->validate([
-            // Rule::notIn compara el valor enviado contra el nivel_id actual (con cast a int)
-            // 'different:N' en Laravel compara contra un *campo de request* llamado N, no contra el valor N
             'nivel_nuevo_id' => ['required', 'exists:niveles_reparacion,id', Rule::notIn([(int) $reparacion->nivel_id])],
-            'motivo' => ['required', 'string', 'min:10'],
+            'motivo'         => ['required', 'string', 'min:10'],
         ]);
 
-        $nivelAnteriorId = $reparacion->nivel_id;
         $nivelNuevo = NivelReparacion::findOrFail($data['nivel_nuevo_id']);
 
-        // Registrar el escalamiento
+        // Registrar historial de escalamiento
         Escalamiento::create([
-            'reparacion_id' => $reparacion->id,
-            'user_id' => auth()->id(),
-            'nivel_anterior_id' => $nivelAnteriorId,
-            'nivel_nuevo_id' => $nivelNuevo->id,
-            'motivo' => $data['motivo'],
+            'reparacion_id'    => $reparacion->id,
+            'user_id'          => auth()->id(),
+            'nivel_anterior_id'=> $reparacion->nivel_id,
+            'nivel_nuevo_id'   => $nivelNuevo->id,
+            'motivo'           => $data['motivo'],
         ]);
 
-        // Actualizar nivel y recalcular hora_limite
-        // ->copy() evita mutar el atributo hora_ingreso del modelo en memoria
+        // Actualizar nivel y recalcular hora límite desde hora de ingreso
         $reparacion->update([
-            'nivel_id' => $nivelNuevo->id,
+            'nivel_id'    => $nivelNuevo->id,
             'hora_limite' => $reparacion->hora_ingreso->copy()->addHours($nivelNuevo->horas_sla),
         ]);
 
@@ -297,8 +281,7 @@ class ReparacionController extends Controller
             ->with('success', "Nivel escalado a {$nivelNuevo->nombre}. Tiempo límite recalculado.");
     }
 
-    // ─── Helper privado ───────────────────────────────────────
-
+    // ── Autorización de taller ────────────────────────────────
     private function autorizarTaller(Reparacion $reparacion): void
     {
         abort_if((int) $reparacion->taller_id !== (int) auth()->user()->taller_id, 403);

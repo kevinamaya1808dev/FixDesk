@@ -132,8 +132,8 @@
             </div>
 
             <div class="p-4 md:p-6" x-data="{
-                grupos: [
-                    { tipo: 'Laptop', cantidad: 1, articulos: [{ marca: '', modelo: '', numero_serie: '' }] }
+                                grupos: [
+                    { tipo: 'Laptop', cantidad: 1, articulos: [{ marca: '', modelo: '', numero_serie: '', nivel_id: '' }] }
                 ],
 
                 tiposDisponibles: [
@@ -164,7 +164,7 @@
                     const actual = grupo.articulos.length;
                     if (n > actual) {
                         for (let i = actual; i < n; i++) {
-                            grupo.articulos.push({ marca: '', modelo: '', numero_serie: '' });
+                                                        grupo.articulos.push({ marca: '', modelo: '', numero_serie: '', nivel_id: '' });
                         }
                     } else {
                         grupo.articulos = grupo.articulos.slice(0, n);
@@ -245,44 +245,86 @@
                                 {{-- Filas de artículos --}}
                                 <div class="space-y-3">
                                     <template x-for="(articulo, ai) in grupo.articulos" :key="ai">
-                                        <div class="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3">
+                                                                                <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 space-y-3">
 
-                                            {{-- Número de artículo --}}
-                                            <span class="flex-shrink-0 text-xs font-bold text-gray-400 w-5 text-center" x-text="ai + 1"></span>
+                                            {{-- Fila superior: número + marca + modelo + serie --}}
+                                            <div class="flex flex-wrap items-end gap-3">
 
-                                            {{-- Marca --}}
-                                            <div class="flex-1 min-w-[120px]">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">Marca <span class="text-red-400">*</span></label>
-                                                <input
-                                                    type="text"
-                                                    :name="`grupos[${gi}][articulos][${ai}][marca]`"
-                                                    x-model="articulo.marca"
-                                                    required
-                                                    placeholder="Ej: Dell, Apple…"
-                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                                {{-- Número de artículo --}}
+                                                <span class="flex-shrink-0 text-xs font-bold text-gray-400 w-5 text-center" x-text="ai + 1"></span>
+
+                                                {{-- Marca --}}
+                                                <div class="flex-1 min-w-[120px]">
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">Marca <span class="text-red-400">*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        :name="`grupos[${gi}][articulos][${ai}][marca]`"
+                                                        x-model="articulo.marca"
+                                                        required
+                                                        placeholder="Ej: Dell, Apple…"
+                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                                </div>
+
+                                                {{-- Modelo --}}
+                                                <div class="flex-1 min-w-[140px]">
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">Modelo <span class="text-red-400">*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        :name="`grupos[${gi}][articulos][${ai}][modelo]`"
+                                                        x-model="articulo.modelo"
+                                                        required
+                                                        placeholder="Ej: Inspiron 15…"
+                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                                </div>
+
+                                                {{-- N° de serie --}}
+                                                <div class="flex-1 min-w-[120px]">
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">N.° de serie <span class="text-gray-400 font-normal">(opcional)</span></label>
+                                                    <input
+                                                        type="text"
+                                                        :name="`grupos[${gi}][articulos][${ai}][numero_serie]`"
+                                                        x-model="articulo.numero_serie"
+                                                        placeholder="Ej: SN123456"
+                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                                </div>
                                             </div>
 
-                                            {{-- Modelo --}}
-                                            <div class="flex-1 min-w-[140px]">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">Modelo <span class="text-red-400">*</span></label>
-                                                <input
-                                                    type="text"
-                                                    :name="`grupos[${gi}][articulos][${ai}][modelo]`"
-                                                    x-model="articulo.modelo"
-                                                    required
-                                                    placeholder="Ej: Inspiron 15…"
-                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
-                                            </div>
-
-                                            {{-- N° de serie --}}
-                                            <div class="flex-1 min-w-[120px]">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1">N.° de serie <span class="text-gray-400 font-normal">(opcional)</span></label>
-                                                <input
-                                                    type="text"
-                                                    :name="`grupos[${gi}][articulos][${ai}][numero_serie]`"
-                                                    x-model="articulo.numero_serie"
-                                                    placeholder="Ej: SN123456"
-                                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                            {{-- Fila inferior: nivel de reparación --}}
+                                            <div class="flex flex-wrap items-start gap-3 pt-2 border-t border-gray-100">
+                                                <div class="w-5 flex-shrink-0"></div>{{-- alineación con el número --}}
+                                                <div class="flex-1 min-w-[200px]">
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                                                        Nivel de reparación <span class="text-red-400">*</span>
+                                                    </label>
+                                                    <select
+                                                        :name="`grupos[${gi}][articulos][${ai}][nivel_id]`"
+                                                        x-model="articulo.nivel_id"
+                                                        required
+                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all">
+                                                        <option value="">— Selecciona un nivel —</option>
+                                                        @foreach($niveles as $nv)
+                                                            <option value="{{ $nv->id }}">
+                                                                Nivel {{ $nv->nivel }} — {{ $nv->nombre }} (SLA: {{ $nv->horas_sla }}h)
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                {{-- Descripción dinámica del nivel seleccionado --}}
+                                                <div class="flex-1 min-w-[200px]">
+                                                    <template x-if="articulo.nivel_id">
+                                                        @foreach($niveles as $nv)
+                                                        <template x-if="articulo.nivel_id == '{{ $nv->id }}'">
+                                                            <div class="rounded-lg bg-[#7C3AED]/5 px-3 py-2 text-xs text-gray-600">
+                                                                <strong class="text-[#2D1B69]">{{ $nv->nombre }}</strong>
+                                                                <p class="mt-0.5 text-gray-500">{{ $nv->descripcion }}</p>
+                                                                <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-[#7C3AED]/10 px-2 py-0.5 text-[10px] text-[#7C3AED]">
+                                                                    SLA: {{ $nv->horas_sla }}h
+                                                                </span>
+                                                            </div>
+                                                        </template>
+                                                        @endforeach
+                                                    </template>
+                                                </div>
                                             </div>
 
                                         </div>
@@ -308,34 +350,23 @@
             </div>
         </div>
         {{-- BLOQUE 3: Nivel y técnico --}}
+                {{-- BLOQUE 3: Técnico --}}
         <div class="bg-white rounded-2xl shadow-md border border-gray-100" style="overflow: visible !important;">
             <div class="border-b border-gray-100 bg-gradient-to-r from-[#7C3AED]/5 to-[#EC4899]/5 px-4 py-4 md:px-6">
                 <legend class="text-lg font-semibold text-[#2D1B69] flex items-center gap-2">
                     <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                    Clasificación de la reparación
+                    Técnico asignado
                 </legend>
             </div>
-            <div class="space-y-4 p-4 md:p-6">
-                <div>
-                    <label for="nivel_id" class="mb-1 block text-sm font-medium text-gray-700">Nivel de reparación <span class="text-red-500">*</span></label>
-
-                    <x-select-nivel
-                        :niveles="$niveles" />
-                    <div id="descripcion-nivel" class="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
-                        Selecciona un nivel para ver su descripción.
-                    </div>
-                </div>
-
-                <div>
-                    <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">Técnico asignado <span class="text-gray-400 text-xs">(opcional)</span></label>
-                    <x-select-tecnico
-                        :tecnicos="$tecnicos"
-                        :selected="old('user_id')"
-                        :showStats="true"
-                        placeholder="Sin asignar" />
-                </div>
+            <div class="p-4 md:p-6">
+                <x-select-tecnico
+                    :tecnicos="$tecnicos"
+                    :selected="old('user_id')"
+                    :showStats="true"
+                    placeholder="Sin asignar" />
+                <p class="mt-2 text-xs text-gray-400">Opcional — puedes asignarlo después desde la orden.</p>
             </div>
         </div>
 
@@ -385,38 +416,5 @@
 </div>
 <!--     -->
 {{-- Datos de niveles para JS (descripción dinámica) --}}
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
 
-        const selectNivel = document.getElementById('nivel_id');
-        const descNivel = document.getElementById('descripcion-nivel');
-
-        if (selectNivel && descNivel) {
-            selectNivel.addEventListener('change', function() {
-                const nivel = niveles[this.value];
-                if (nivel) {
-                    descNivel.innerHTML = `
-                        <div class="flex items-start gap-2">
-                            <svg class="w-5 h-5 text-[#7C3AED] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#clipboard"/></svg>
-                            <div>
-                                <strong class="font-medium text-gray-700">${nivel.nombre}</strong>
-                                <p class="text-gray-500 text-xs mt-0.5">${nivel.descripcion || 'Sin descripción adicional'}</p>
-                                <span class="inline-flex items-center gap-1 mt-1 text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] px-2 py-0.5 rounded-full"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="/sprite.svg#stopwatch"/></svg> Tiempo estimado: ${nivel.horas_sla} horas</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    descNivel.innerHTML = 'Selecciona un nivel para ver su descripción.';
-                }
-            });
-
-            // Trigger inicial si hay un valor seleccionado
-            if (selectNivel.value) {
-                selectNivel.dispatchEvent(new Event('change'));
-            }
-        }
-    });
-</script>
-@endpush
 @endsection

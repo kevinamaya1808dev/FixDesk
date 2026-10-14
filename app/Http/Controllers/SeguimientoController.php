@@ -9,24 +9,17 @@ use Illuminate\Support\Str;
 
 class SeguimientoController extends Controller
 {
-    /**
-     * Formulario público para buscar una orden por folio global.
-     */
+    // ── Formulario público de búsqueda por folio ──────────────
     public function buscar()
     {
         return view('seguimiento.buscar');
     }
 
-    /**
-     * Redirige al portal de seguimiento si el folio global existe.
-     */
+    // ── Redirige al portal usando el folio como buscador ──────
     public function redirigirPorFolio(Request $request)
     {
-        $data = $request->validate([
-            'folio' => ['required', 'string', 'max:50'],
-        ]);
-
-        $folio = Str::upper(preg_replace('/\s+/', '', trim($data['folio'])) ?? '');
+        $data  = $request->validate(['folio' => ['required', 'string', 'max:50']]);
+        $folio = Str::upper(trim(preg_replace('/\s+/', '', $data['folio'])));
 
         $reparacion = Reparacion::where('folio', $folio)->first();
 
@@ -39,28 +32,30 @@ class SeguimientoController extends Controller
         return redirect()->route('seguimiento.show', $reparacion->token_seguimiento);
     }
 
-    /**
-     * Portal público del cliente — solo con el token.
-     */
+    // ── Portal público del cliente (solo token) ───────────────
+    // Se cargan solo las columnas necesarias en cada relación
     public function show(string $token)
     {
         $reparacion = Reparacion::where('token_seguimiento', $token)
-            ->with(['cliente', 'tecnico', 'nivel', 'mensajes.user'])
+            ->with([
+                'cliente:id,nombre,telefono',
+                'tecnico:id,name',
+                'nivel:id,nivel,nombre',
+                'mensajes.user:id,name',
+            ])
             ->firstOrFail();
 
         return view('seguimiento.show', compact('reparacion'));
     }
 
-    /**
-     * El cliente envía un mensaje desde el portal.
-     */
+    // ── El cliente envía un mensaje desde el portal ───────────
     public function mensaje(Request $request, string $token)
     {
-        $reparacion = Reparacion::where('token_seguimiento', $token)->firstOrFail();
+        $reparacion = Reparacion::where('token_seguimiento', $token)
+            ->select('id')   // solo el id para la inserción
+            ->firstOrFail();
 
-        $data = $request->validate([
-            'contenido' => ['required', 'string', 'max:1000'],
-        ]);
+        $data = $request->validate(['contenido' => ['required', 'string', 'max:1000']]);
 
         Mensaje::create([
             'reparacion_id'  => $reparacion->id,
@@ -69,28 +64,24 @@ class SeguimientoController extends Controller
             'es_del_cliente' => true,
         ]);
 
-        // Si la petición viene de AJAX (JS), retornar JSON en vez de redirigir
-        if ($request->expectsJson()) {
-            return response()->json(['ok' => true]);
-        }
-
-        // Fallback para navegadores sin JS
-        return redirect()->route('seguimiento.show', $token)
-                         ->with('success', 'Mensaje enviado correctamente.');
+        // JSON para peticiones AJAX, redirect para navegadores sin JS
+        return $request->expectsJson()
+            ? response()->json(['ok' => true])
+            : redirect()->route('seguimiento.show', $token)->with('success', 'Mensaje enviado correctamente.');
     }
 
-    /**
-     * Polling JSON de mensajes para el portal del cliente.
-     */
+    // ── Polling JSON de mensajes para el portal del cliente ───
     public function mensajesJson(string $token)
     {
-        $reparacion = Reparacion::where('token_seguimiento', $token)->firstOrFail();
+        $reparacion = Reparacion::where('token_seguimiento', $token)
+            ->select('id')
+            ->firstOrFail();
 
         $mensajes = $reparacion->mensajes()
             ->with('user:id,name')
             ->orderBy('created_at')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id'             => $m->id,
                 'contenido'      => $m->contenido,
                 'es_del_cliente' => $m->es_del_cliente,

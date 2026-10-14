@@ -22,7 +22,7 @@ class PanelTecnicoController extends Controller
             'completadas' => Reparacion::delTaller($tallerId)->where('estado', 'Entregado')->count(),
         ];
 
-        $ordenesActivas = Reparacion::delTaller($tallerId)
+                $ordenesActivas = Reparacion::delTaller($tallerId)
             ->activas()
             ->with(['cliente', 'tecnico', 'nivel'])
             ->latest()

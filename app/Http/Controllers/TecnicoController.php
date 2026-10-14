@@ -10,9 +10,8 @@ use Illuminate\Validation\ValidationException;
 
 class TecnicoController extends Controller
 {
-    /**
-     * Lista los técnicos del taller del admin autenticado.
-     */
+    // ── Lista de técnicos del taller ──────────────────────────
+    // withCount usa subconsultas en lugar de cargar todas las órdenes en memoria
     public function index()
     {
         $this->soloAdmin();
@@ -21,51 +20,52 @@ class TecnicoController extends Controller
         $tecnicos = User::where('taller_id', $taller->id)
             ->where('rol', 'tecnico')
             ->withCount([
-                'reparaciones as ordenes_activas' => fn($q) => $q->whereNotIn('estado', ['Entregado', 'Cancelado']),
+                'reparaciones as ordenes_activas' => fn ($q) => $q->whereNotIn('estado', ['Entregado', 'Cancelado']),
                 'reparaciones as ordenes_total',
             ])
             ->orderBy('name')
-            ->get();
+            ->get(['id', 'name', 'email', 'created_at']);
 
-        $maxTecnicos = $taller->maxTecnicos();
-        $puedeCrearTecnicos = $tecnicos->count() < $maxTecnicos;
-
-        return view('tecnicos.index', compact('tecnicos', 'maxTecnicos', 'puedeCrearTecnicos'));
+        return view('tecnicos.index', [
+            'tecnicos'          => $tecnicos,
+            'maxTecnicos'       => $taller->maxTecnicos(),
+            'puedeCrearTecnicos'=> $tecnicos->count() < $taller->maxTecnicos(),
+        ]);
     }
 
-    /**
-     * Formulario para crear un nuevo técnico.
-     */
+    // ── Formulario para crear técnico ─────────────────────────
     public function create()
     {
         $this->soloAdmin();
-        $taller = auth()->user()->taller()->with('plan')->firstOrFail();
+        $taller           = auth()->user()->taller()->with('plan')->firstOrFail();
         $tecnicosActuales = $taller->tecnicosCount();
-        $maxTecnicos = $taller->maxTecnicos();
-        $puedeCrearTecnicos = $tecnicosActuales < $maxTecnicos;
+        $maxTecnicos      = $taller->maxTecnicos();
 
-        return view('tecnicos.create', compact('tecnicosActuales', 'maxTecnicos', 'puedeCrearTecnicos'));
+        return view('tecnicos.create', [
+            'tecnicosActuales'   => $tecnicosActuales,
+            'maxTecnicos'        => $maxTecnicos,
+            'puedeCrearTecnicos' => $tecnicosActuales < $maxTecnicos,
+        ]);
     }
 
-    /**
-     * Guarda el nuevo técnico asociado al taller del admin.
-     */
+    // ── Guardar nuevo técnico ─────────────────────────────────
     public function store(Request $request)
     {
         $this->soloAdmin();
         $taller = auth()->user()->taller()->with('plan')->firstOrFail();
+
+        // Verificar límite antes de validar para un error más rápido
+        if (! $taller->puedeCrearTecnicos()) {
+            throw ValidationException::withMessages([
+                'name' => "Tu plan permite hasta {$taller->maxTecnicos()} técnicos. Actualiza tu suscripción para agregar más.",
+            ]);
+        }
 
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', Rules\Password::defaults(), 'confirmed'],
         ]);
-
-        if (! $taller->puedeCrearTecnicos()) {
-            throw ValidationException::withMessages([
-                'name' => "Tu plan actual permite hasta {$taller->maxTecnicos()} técnicos. Actualiza tu suscripción para agregar más.",
-            ]);
-        }
 
         User::create([
             'taller_id' => $taller->id,
@@ -79,9 +79,7 @@ class TecnicoController extends Controller
             ->with('success', "Técnico {$data['name']} creado correctamente.");
     }
 
-    /**
-     * Elimina (desactiva) un técnico del taller.
-     */
+    // ── Eliminar técnico del taller ───────────────────────────
     public function destroy(User $tecnico)
     {
         $this->soloAdmin();
@@ -90,12 +88,10 @@ class TecnicoController extends Controller
 
         $tecnico->delete();
 
-        return redirect()->route('tecnicos.index')
-            ->with('success', 'Técnico eliminado del taller.');
+        return redirect()->route('tecnicos.index')->with('success', 'Técnico eliminado del taller.');
     }
 
-    // ─── Guard interno ─────────────────────────────────────────
-
+    // ── Guard: solo administradores ───────────────────────────
     private function soloAdmin(): void
     {
         abort_unless(auth()->user()?->esAdmin(), 403, 'Solo los administradores pueden acceder a esta sección.');

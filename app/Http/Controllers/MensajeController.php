@@ -8,21 +8,21 @@ use Illuminate\Http\Request;
 
 class MensajeController extends Controller
 {
-    /**
-     * Devuelve los mensajes de una orden en JSON (para polling del chat).
-     */
+    // ── Devuelve mensajes en JSON para el polling del chat ────
+    // Solo se cargan las columnas necesarias del usuario relacionado
     public function index(Reparacion $reparacion)
     {
         abort_if((int) $reparacion->taller_id !== (int) auth()->user()->taller_id, 403);
 
         $mensajes = $reparacion->mensajes()
-            ->with('user:id,name,rol')
+            ->with('user:id,name')
             ->orderBy('created_at')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id'             => $m->id,
                 'contenido'      => $m->contenido,
                 'es_del_cliente' => $m->es_del_cliente,
+                // Si es del cliente muestra "Cliente", si no el nombre del técnico
                 'autor'          => $m->es_del_cliente ? 'Cliente' : ($m->user->name ?? 'Sistema'),
                 'fecha'          => $m->created_at->format('d/m H:i'),
             ]);
@@ -30,9 +30,7 @@ class MensajeController extends Controller
         return response()->json($mensajes);
     }
 
-    /**
-     * Guarda un mensaje enviado por el técnico/admin.
-     */
+    // ── Guarda un mensaje del técnico/admin ───────────────────
     public function store(Request $request, Reparacion $reparacion)
     {
         abort_if((int) $reparacion->taller_id !== (int) auth()->user()->taller_id, 403);
