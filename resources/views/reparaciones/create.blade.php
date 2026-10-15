@@ -133,7 +133,7 @@
 
             <div class="p-4 md:p-6" x-data="{
                                 grupos: [
-                    { tipo: 'Laptop', cantidad: 1, articulos: [{ marca: '', modelo: '', numero_serie: '', nivel_id: '' }] }
+                    { tipo: 'Laptop', cantidad: 1, articulos: [{ marca: '', modelo: '', numero_serie: '', nivel_id: '', hora_limite: '' }] }
                 ],
 
                 tiposDisponibles: [
@@ -164,7 +164,7 @@
                     const actual = grupo.articulos.length;
                     if (n > actual) {
                         for (let i = actual; i < n; i++) {
-                                                        grupo.articulos.push({ marca: '', modelo: '', numero_serie: '', nivel_id: '' });
+                            grupo.articulos.push({ marca: '', modelo: '', numero_serie: '', nivel_id: '', hora_limite: '' });
                         }
                     } else {
                         grupo.articulos = grupo.articulos.slice(0, n);
@@ -289,9 +289,11 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Fila inferior: nivel de reparación --}}
+                                                                                        {{-- Fila inferior: nivel + fecha límite manual --}}
                                             <div class="flex flex-wrap items-start gap-3 pt-2 border-t border-gray-100">
-                                                <div class="w-5 flex-shrink-0"></div>{{-- alineación con el número --}}
+                                                <div class="w-5 flex-shrink-0"></div>
+
+                                                {{-- Selector de nivel de reparación --}}
                                                 <div class="flex-1 min-w-[200px]">
                                                     <label class="block text-xs font-medium text-gray-500 mb-1">
                                                         Nivel de reparación <span class="text-red-400">*</span>
@@ -304,26 +306,37 @@
                                                         <option value="">— Selecciona un nivel —</option>
                                                         @foreach($niveles as $nv)
                                                             <option value="{{ $nv->id }}">
-                                                                Nivel {{ $nv->nivel }} — {{ $nv->nombre }} (SLA: {{ $nv->horas_sla }}h)
+                                                                Nivel {{ $nv->nivel }} — {{ $nv->nombre }}
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                                {{-- Descripción dinámica del nivel seleccionado --}}
-                                                <div class="flex-1 min-w-[200px]">
+                                                    {{-- Descripción del nivel seleccionado --}}
                                                     <template x-if="articulo.nivel_id">
                                                         @foreach($niveles as $nv)
                                                         <template x-if="articulo.nivel_id == '{{ $nv->id }}'">
-                                                            <div class="rounded-lg bg-[#7C3AED]/5 px-3 py-2 text-xs text-gray-600">
+                                                            <div class="mt-2 rounded-lg bg-[#7C3AED]/5 px-3 py-2 text-xs text-gray-600">
                                                                 <strong class="text-[#2D1B69]">{{ $nv->nombre }}</strong>
                                                                 <p class="mt-0.5 text-gray-500">{{ $nv->descripcion }}</p>
-                                                                <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-[#7C3AED]/10 px-2 py-0.5 text-[10px] text-[#7C3AED]">
-                                                                    SLA: {{ $nv->horas_sla }}h
-                                                                </span>
                                                             </div>
                                                         </template>
                                                         @endforeach
                                                     </template>
+                                                </div>
+
+                                                {{-- Fecha y hora límite de entrega manual --}}
+                                                <div class="flex-1 min-w-[200px]">
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                                                        Fecha límite de entrega
+                                                        <span class="text-gray-400 font-normal">(opcional)</span>
+                                                    </label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        :name="`grupos[${gi}][articulos][${ai}][hora_limite]`"
+                                                        x-model="articulo.hora_limite"
+                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
+                                                    <p class="mt-1 text-[10px] text-gray-400">
+                                                        Si no se indica, la orden quedará sin fecha límite.
+                                                    </p>
                                                 </div>
                                             </div>
 

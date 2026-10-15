@@ -120,8 +120,9 @@ class ReparacionController extends Controller
             'grupos.*.articulos'                  => ['required', 'array', 'min:1'],
             'grupos.*.articulos.*.marca'          => ['required', 'string', 'max:100'],
             'grupos.*.articulos.*.modelo'         => ['required', 'string', 'max:100'],
-            'grupos.*.articulos.*.numero_serie'   => ['nullable', 'string', 'max:100'],
+                        'grupos.*.articulos.*.numero_serie'   => ['nullable', 'string', 'max:100'],
             'grupos.*.articulos.*.nivel_id'       => ['required', 'exists:niveles_reparacion,id'],
+            'grupos.*.articulos.*.hora_limite'    => ['nullable', 'date'],
 
             // Datos comunes del lote
             'user_id'            => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('taller_id', $tallerId))],
@@ -147,9 +148,9 @@ class ReparacionController extends Controller
         foreach ($data['grupos'] as $gi => $grupo) {
             foreach ($grupo['articulos'] as $ai => $articulo) {
 
-                // Nivel y SLA propios de cada artículo
+                // Nivel individual por artículo; hora_limite la ingresa el usuario manualmente
                 $nivel      = NivelReparacion::findOrFail($articulo['nivel_id']);
-                $horaLimite = $horaIngreso->copy()->addHours($nivel->horas_sla);
+                $horaLimite = $articulo['hora_limite'] ?? null;
                 $totalArticulos++;
 
                 $reparacion = Reparacion::create([
