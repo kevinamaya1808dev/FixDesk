@@ -322,21 +322,7 @@
                                                         @endforeach
                                                     </template>
                                                 </div>
-
-                                                {{-- Fecha y hora límite de entrega manual --}}
-                                                <div class="flex-1 min-w-[200px]">
-                                                    <label class="block text-xs font-medium text-gray-500 mb-1">
-                                                        Fecha límite de entrega
-                                                        <span class="text-gray-400 font-normal">(opcional)</span>
-                                                    </label>
-                                                    <input
-                                                        type="datetime-local"
-                                                        :name="`grupos[${gi}][articulos][${ai}][hora_limite]`"
-                                                        x-model="articulo.hora_limite"
-                                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 transition-all" />
-                                                    <p class="mt-1 text-[10px] text-gray-400">
-                                                        Si no se indica, la orden quedará sin fecha límite.
-                                                    </p>
+                                                    <x-selector-fecha-limite />
                                                 </div>
                                             </div>
 
